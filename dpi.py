@@ -15,26 +15,38 @@ def dpis_from_pixel_dimensions_and_physical_dimensions(pix_ds, phys_ds):
     return (dpih, dpiv)
 
 
-def dpi(ratio, px_ds, diagonal):
+def dpis(ratio, px_ds, diagonal):
     phys_ds = dimensions_of_ratio_and_diagonal(ratio, diagonal)
-    dpis = dpis_from_pixel_dimensions_and_physical_dimensions(px_ds, phys_ds)
-    return int(round(sum(dpis) / len(dpis)))
+    return dpis_from_pixel_dimensions_and_physical_dimensions(px_ds, phys_ds)
+
+def _avg(coll):
+    return round(sum(coll) / len(coll))
+
+def dpi(ratio, px_ds, diagonal):
+    return _avg(dpis(ratio, px_ds, diagonal))
 
 
-def __tuple_from_arg_split_on(arg_index, split_on):
-    return tuple([int(y) for y in argv[arg_index].split(split_on)])
+def _tuple_from_arg_split_on(arg_index, split_on):
+    return tuple([float(y) for y in argv[arg_index].split(split_on)])
 
+def summary(dps):
+    return """\
+            Dots per X
+horizontal  {hdpi}
+vertical    {vdpi}
+average     {adpi}\
+""".format(hdpi=dps[0], vdpi=dps[1], adpi=_avg(dps))
 
-def __main():
+def _main():
     if len(argv) != 4:
         print("Must be given three arguments like:\n")
         print("  dpi.py 21:9 2550x1080 25")
         exit(1)
-    ratio = __tuple_from_arg_split_on(1, ":")
-    pixel_ds = __tuple_from_arg_split_on(2, "x")
-    diagonal = int(argv[3])
-    print(dpi(ratio, pixel_ds, diagonal))
+    ratio = _tuple_from_arg_split_on(1, ":")
+    pixel_ds = _tuple_from_arg_split_on(2, "x")
+    diagonal = float(argv[3])
+    print(summary(dpis(ratio, pixel_ds, diagonal)))
 
 
 if __name__ == "__main__":
-    __main()
+    _main()
